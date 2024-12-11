@@ -25,13 +25,24 @@ jobs:
       run: |
         ssh-keyscan -H ${{ secrets.EC2_IP }} >> ~/.ssh/known_hosts
 
-    - name: Deploy hello-world.php to EC2
-      run: |
-        rsync -avz hello-world.php ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }}:${{ secrets.DEPLOY_PATH }}
-      env:
-        EC2_USER: ${{ secrets.EC2_USER }}
-        EC2_IP: ${{ secrets.EC2_IP }}
-        DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      - name: SCP hello-world.php to EC2
+        run: |
+          scp -i ~/.ssh/id_rsa hello-world.php ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }}:/home/ubuntu/
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_IP: ${{ secrets.EC2_IP }}
+
+      - name: Move hello-world.php to /var/www/wordpress
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} << 'EOF'
+            sudo mv /home/ubuntu/hello-world.php /var/www/wordpress/
+            sudo chown www-data:www-data /var/www/wordpress/hello-world.php
+            sudo chmod 644 /var/www/wordpress/hello-world.php
+          EOF
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_IP: ${{ secrets.EC2_IP }}
+
 
     - name: Restart Nginx (if needed)
       run: |
