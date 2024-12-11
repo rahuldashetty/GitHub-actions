@@ -27,7 +27,7 @@ jobs:
 
     - name: SCP hello-world.php to EC2
       run: |
-        scp -i ~/.ssh/id_rsa /home/rahul/Desktop/Brainstorm/mycode.php ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }}:/home/ubuntu/
+        scp -i /home/rahul/ubuntu.pem /home/rahul/Desktop/Brainstorm/mycode.php ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }}:/home/ubuntu/
       env:
         EC2_USER: ${{ secrets.EC2_USER }}
         EC2_IP: ${{ secrets.EC2_IP }}
